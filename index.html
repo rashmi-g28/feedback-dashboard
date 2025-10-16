@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html ng-app="feedbackApp">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Feedback Dashboard</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    textarea { width: 300px; height: 100px; }
+    button { margin-top: 10px; padding: 8px 15px; }
+    table { margin: 20px auto; border-collapse: collapse; }
+    td, th { border: 1px solid #aaa; padding: 8px; }
+  </style>
+</head>
+<body ng-controller="FeedbackController">
+  <h1>AI Feedback Dashboard</h1>
+  <textarea ng-model="feedback" placeholder="Enter feedback here..."></textarea><br>
+  <button ng-click="submitFeedback()">Submit</button>
+  <h3>{{responseMessage}}</h3>
+
+  <h2>All Feedbacks</h2>
+  <table>
+    <tr><th>ID</th><th>Feedback</th><th>Sentiment</th></tr>
+    <tr ng-repeat="f in feedbacks">
+      <td>{{f.id}}</td>
+      <td>{{f.feedback}}</td>
+      <td>{{f.sentiment}}</td>
+    </tr>
+  </table>
+
+  <script>
+    const app = angular.module('feedbackApp', []);
+    app.controller('FeedbackController', function($scope, $http) {
+      $scope.submitFeedback = function() {
+        $http.post('http://127.0.0.1:5000/submit', { feedback: $scope.feedback })
+          .then(function(response) {
+            $scope.responseMessage = response.data.message + " Sentiment: " + response.data.sentiment;
+            $scope.feedback = "";
+            $scope.loadFeedbacks();
+          });
+      };
+
+      $scope.loadFeedbacks = function() {
+        $http.get('http://127.0.0.1:5000/feedbacks')
+          .then(function(response) {
+            $scope.feedbacks = response.data;
+          });
+      };
+
+      $scope.loadFeedbacks();
+    });
+  </script>
+</body>
+</html>
