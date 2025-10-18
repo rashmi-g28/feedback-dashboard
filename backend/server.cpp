@@ -1,5 +1,3 @@
- // server.cpp
-// Minimal C++ server using cpp-httplib and sqlite3
 #include <httplib.h>       // httplib.h header (cpp-httplib)
 #include <sqlite3.h>
 #include <iostream>
@@ -19,6 +17,7 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
     return 0;
 }
 
+//Table creation to store feedbacks and their respective sentiments
 void ensure_db(sqlite3* db) {
     const char* sql = R"(CREATE TABLE IF NOT EXISTS feedback (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,6 +36,7 @@ size_t curl_write_cb(void* contents, size_t size, size_t nmemb, void* userp) {
     return size*nmemb;
 }
 
+//the entered feedback is to be sent to AWS bedrock and that in turn will analyze the paragraph and provides us the user sentiments
 std::string call_bedrock(const std::string &prompt) {
     Aws::SDKOptions options;
     Aws::InitAPI(options);
